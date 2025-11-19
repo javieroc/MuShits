@@ -2,6 +2,7 @@ package com.example.mushits.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.example.mushits.R
 import com.example.mushits.ui.theme.ColorMode
 
@@ -28,51 +30,64 @@ fun HomeScreen(
     mode: ColorMode,
     onToggleMode: () -> Unit,
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("MuShits", color = MaterialTheme.colorScheme.primary)
-                },
-                actions = {
-                    TextButton(onClick = onToggleMode) {
-                        Text(
-                            text = if (mode == ColorMode.MODE1) "Mode 2" else "Mode 1",
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                )
-            )
-        },
-        containerColor = Color.Transparent
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.bg1),
+            contentDescription = "Earth Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
         Box(
-            modifier = modifier.fillMaxSize().padding(innerPadding),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.bg1),
-                contentDescription = "Earth Background",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
+        )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            )
-
-            Text(
-                text = "Welcome",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
+        Scaffold(
+            modifier = modifier.fillMaxSize().padding(4.dp),
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text("MuShits", color = MaterialTheme.colorScheme.primary)
+                    },
+                    actions = {
+                        TextButton(onClick = onToggleMode) {
+                            Text(
+                                text = if (mode == ColorMode.MODE1) "Mode 2" else "Mode 1",
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier
+                        .background(Color.Transparent)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(0.dp)
+                        ),
+                    scrollBehavior = null
+                )
+            },
+            containerColor = Color.Transparent,
+            content = { innerPadding ->
+                Box(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Welcome",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        )
     }
 }
