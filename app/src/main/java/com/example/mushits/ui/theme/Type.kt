@@ -5,9 +5,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.text.googlefonts.Font
+import com.example.mushits.R
 
-// Set of Material typography styles to start with
-val Typography = Typography(
+
+val OldTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
@@ -31,4 +34,38 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+private val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
+)
+
+private val pressStart2P = GoogleFont("Press Start 2P")
+
+val PressStartFontFamily = FontFamily(
+    Font(googleFont = pressStart2P, fontProvider = provider)
+)
+
+val Typography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = PressStartFontFamily,
+        fontSize = 16.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = PressStartFontFamily,
+        fontSize = 14.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = PressStartFontFamily,
+        fontSize = 22.sp
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = PressStartFontFamily,
+        fontSize = 20.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = PressStartFontFamily,
+        fontSize = 14.sp
+    )
 )
