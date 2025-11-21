@@ -18,7 +18,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -39,6 +39,9 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
 ) {
     val weatherState = viewModel.weather.collectAsState()
+    val date by viewModel.currentDate.collectAsState()
+    val year by viewModel.currentYear.collectAsState()
+    val time by viewModel.currentTime.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -106,8 +109,9 @@ fun HomeScreen(
                     } else {
                         InfoBox(
                             modifier = Modifier.fillMaxWidth(),
-                            date = weather.current_weather.time.take(10),
-                            time = weather.current_weather.time.takeLast(5),
+                            date = date,
+                            time = time,
+                            year = year,
                             city = "Your City",
                             temperature = "${weather.current_weather.temperature}°C",
                             condition = "N/A",

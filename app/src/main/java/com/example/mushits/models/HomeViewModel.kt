@@ -7,11 +7,25 @@ import com.example.mushits.network.WeatherResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class HomeViewModel : ViewModel() {
 
     private val _weather = MutableStateFlow<WeatherResponse?>(null)
     val weather: StateFlow<WeatherResponse?> = _weather
+
+    val currentDate: StateFlow<String> = MutableStateFlow(
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEE, dd MMM"))
+    )
+
+    val currentYear: StateFlow<String> = MutableStateFlow(
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy"))
+    )
+
+    val currentTime: StateFlow<String> = MutableStateFlow(
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm"))
+    )
 
     init {
         fetchWeather()

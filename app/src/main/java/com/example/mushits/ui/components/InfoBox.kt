@@ -12,14 +12,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.mushits.ui.theme.ColorMode
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun InfoBox(
     date: String,
     time: String,
+    year: String,
     city: String,
     temperature: String,
     condition: String,
@@ -50,29 +55,46 @@ fun InfoBox(
             .fillMaxWidth()
             .border(1.dp, MaterialTheme.colorScheme.primary)
             .background(Color.Black.copy(alpha = 0.4f))
-            .padding(4.dp)
     ) {
         Column {
-
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.primary)
+                    .padding(6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(date, color = MaterialTheme.colorScheme.primary)
-                Text(time, color = MaterialTheme.colorScheme.primary)
+                Text(text = date, color = MaterialTheme.colorScheme.secondary)
+                Text(text = year, color = MaterialTheme.colorScheme.secondary)
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            Row(verticalAlignment = Alignment.Top) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = time,
+                    fontSize = 32.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Row(
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.Top
+            ) {
                 if (imageUrl != null) {
                     AsyncImage(
                         model = imageUrl,
                         contentDescription = "Location Image",
                         modifier = Modifier
-                            .size(120.dp)
-                            .border(2.dp, MaterialTheme.colorScheme.primary),
+                            .size(120.dp),
                         contentScale = ContentScale.Crop,
                         colorFilter = ColorFilter.colorMatrix(matrix)
                     )
@@ -85,13 +107,15 @@ fun InfoBox(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
-                Column {
-                    Text("LOC – $city", color = MaterialTheme.colorScheme.primary)
-                    Text("TMP – $temperature", color = MaterialTheme.colorScheme.primary)
-                    Text("CON – $condition", color = MaterialTheme.colorScheme.primary)
-                    Text("HUM – $humidity", color = MaterialTheme.colorScheme.primary)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text("LOC – $city", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+                    Text("TMP – $temperature", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+                    Text("CON – $condition", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+                    Text("HUM – $humidity", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
                 }
             }
         }
