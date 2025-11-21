@@ -48,10 +48,9 @@ fun InfoBox(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-            .border(2.dp, MaterialTheme.colorScheme.primary)
+            .border(1.dp, MaterialTheme.colorScheme.primary)
             .background(Color.Black.copy(alpha = 0.4f))
-            .padding(12.dp)
+            .padding(4.dp)
     ) {
         Column {
 
