@@ -1,0 +1,100 @@
+package com.example.mushits.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.example.mushits.ui.theme.ColorMode
+
+@Composable
+fun InfoBox(
+    date: String,
+    time: String,
+    city: String,
+    temperature: String,
+    condition: String,
+    humidity: String,
+    imageUrl: String?,
+    colorMode: ColorMode,
+    modifier: Modifier = Modifier
+) {
+    // Build the proper color matrix for image
+    val grayscale = ColorMatrix().apply { setToSaturation(0f) }
+
+    val greenMono = ColorMatrix(
+        floatArrayOf(
+            0.3f, 0.3f, 0.3f, 0f, 0f,
+            0f,   1f,   0f,  0f, 0f,
+            0.3f, 0.3f, 0.3f, 0f, 0f,
+            0f,   0f,   0f,  1f, 0f
+        )
+    )
+
+    val matrix = when (colorMode) {
+        ColorMode.MODE1 -> grayscale
+        ColorMode.MODE2 -> greenMono
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .border(2.dp, MaterialTheme.colorScheme.primary)
+            .background(Color.Black.copy(alpha = 0.4f))
+            .padding(12.dp)
+    ) {
+        Column {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(date, color = MaterialTheme.colorScheme.primary)
+                Text(time, color = MaterialTheme.colorScheme.primary)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(verticalAlignment = Alignment.Top) {
+
+                if (imageUrl != null) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = "Location Image",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .border(2.dp, MaterialTheme.colorScheme.primary),
+                        contentScale = ContentScale.Crop,
+                        colorFilter = ColorFilter.colorMatrix(matrix)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .border(2.dp, MaterialTheme.colorScheme.primary)
+                            .background(Color.DarkGray)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text("LOC – $city", color = MaterialTheme.colorScheme.primary)
+                    Text("TMP – $temperature", color = MaterialTheme.colorScheme.primary)
+                    Text("CON – $condition", color = MaterialTheme.colorScheme.primary)
+                    Text("HUM – $humidity", color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+    }
+}

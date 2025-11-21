@@ -14,13 +14,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mushits.R
+import com.example.mushits.models.HomeViewModel
 import com.example.mushits.ui.theme.ColorMode
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +32,10 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     mode: ColorMode,
     onToggleMode: () -> Unit,
+    viewModel: HomeViewModel = viewModel(),
 ) {
+    val weatherState = viewModel.weather.collectAsState()
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.bg1),
@@ -75,17 +81,31 @@ fun HomeScreen(
             },
             containerColor = Color.Transparent,
             content = { innerPadding ->
+                val weather = weatherState.value
+
                 Box(
                     modifier = modifier
                         .fillMaxSize()
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Welcome",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    if (weather == null) {
+                        Text(
+                            text = "Loading weather...",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Text(
+                            text = """
+                            Temperature: ${weather.current_weather.temperature}°C
+                            Sunrise: ${weather.daily?.sunrise?.firstOrNull() ?: "N/A"}
+                            Sunset: ${weather.daily?.sunset?.firstOrNull() ?: "N/A"}
+                        """.trimIndent(),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
         )
