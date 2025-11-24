@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.0"
 }
@@ -38,7 +39,13 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+}
+
+secrets {
+    defaultPropertiesFileName = "secrets.properties"
+    propertiesFileName = "secrets.properties"
 }
 
 dependencies {

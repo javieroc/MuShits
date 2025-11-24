@@ -28,7 +28,7 @@ data class DailyWeather(
     val sunset: List<String>
 )
 
-interface ApiService {
+interface ForecastAPI {
     @GET("v1/forecast")
     suspend fun getWeather(
         @Query("latitude") latitude: Double,

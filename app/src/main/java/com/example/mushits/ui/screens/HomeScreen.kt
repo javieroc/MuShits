@@ -54,6 +54,7 @@ fun HomeScreen(
     val date by viewModel.currentDate.collectAsState()
     val year by viewModel.currentYear.collectAsState()
     val time by viewModel.currentTime.collectAsState()
+    val cityImage by viewModel.cityImageUrl.collectAsState()
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -150,7 +151,7 @@ fun HomeScreen(
                             temperature = "${weather.current_weather.temperature}°C",
                             condition = "N/A",
                             humidity = "N/A",
-                            imageUrl = null,
+                            imageUrl = cityImage,
                             colorMode = mode
                         )
                     }

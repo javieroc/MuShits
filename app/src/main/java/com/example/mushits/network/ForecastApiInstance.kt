@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
-object RetrofitInstance {
+object ForecastApiInstance {
 
     private const val BASE_URL = "https://api.open-meteo.com/"
 
@@ -22,7 +22,7 @@ object RetrofitInstance {
             .build()
     }
 
-    val api: ApiService by lazy {
-        retrofit.create(ApiService::class.java)
+    val api: ForecastAPI by lazy {
+        retrofit.create(ForecastAPI::class.java)
     }
 }
