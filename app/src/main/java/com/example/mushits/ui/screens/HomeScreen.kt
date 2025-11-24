@@ -1,5 +1,9 @@
 package com.example.mushits.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,18 +21,22 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mushits.R
 import com.example.mushits.models.HomeViewModel
 import com.example.mushits.ui.components.InfoBox
 import com.example.mushits.ui.theme.ColorMode
+import com.google.android.gms.location.LocationServices
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,10 +46,36 @@ fun HomeScreen(
     onToggleMode: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
     val weatherState = viewModel.weather.collectAsState()
+    val city by viewModel.cityName.collectAsState()
     val date by viewModel.currentDate.collectAsState()
     val year by viewModel.currentYear.collectAsState()
     val time by viewModel.currentTime.collectAsState()
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                viewModel.fetchUserLocation(context, fusedLocationClient)
+            }
+        }
+
+    LaunchedEffect(Unit) {
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!granted) {
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            viewModel.fetchUserLocation(context, fusedLocationClient)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -112,7 +146,7 @@ fun HomeScreen(
                             date = date,
                             time = time,
                             year = year,
-                            city = "Your City",
+                            city = city,
                             temperature = "${weather.current_weather.temperature}°C",
                             condition = "N/A",
                             humidity = "N/A",

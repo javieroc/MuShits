@@ -12,13 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.mushits.ui.theme.ColorMode
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun InfoBox(
@@ -67,7 +64,7 @@ fun InfoBox(
                 Text(text = year, color = MaterialTheme.colorScheme.secondary)
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
                 modifier = Modifier
@@ -78,15 +75,15 @@ fun InfoBox(
             ) {
                 Text(
                     text = time,
-                    fontSize = 32.sp,
+                    fontSize = 24.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 if (imageUrl != null) {
@@ -94,14 +91,14 @@ fun InfoBox(
                         model = imageUrl,
                         contentDescription = "Location Image",
                         modifier = Modifier
-                            .size(120.dp),
+                            .size(100.dp),
                         contentScale = ContentScale.Crop,
                         colorFilter = ColorFilter.colorMatrix(matrix)
                     )
                 } else {
                     Box(
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(100.dp)
                             .border(2.dp, MaterialTheme.colorScheme.primary)
                             .background(Color.DarkGray)
                     )
@@ -112,10 +109,10 @@ fun InfoBox(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("LOC – $city", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-                    Text("TMP – $temperature", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-                    Text("CON – $condition", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
-                    Text("HUM – $humidity", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
+                    Text("LOC – $city", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                    Text("TMP – $temperature", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                    Text("CON – $condition", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                    Text("HUM – $humidity", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
                 }
             }
         }

@@ -29,19 +29,12 @@ data class DailyWeather(
 )
 
 interface ApiService {
-
     @GET("v1/forecast")
     suspend fun getWeather(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
-
-        // enable current weather
         @Query("current_weather") currentWeather: Boolean = true,
-
-        // request sunrise + sunset
         @Query("daily") daily: String = "sunrise,sunset",
-
-        // automatically adjust to user's timezone
         @Query("timezone") timezone: String = "auto"
     ): WeatherResponse
 }
