@@ -99,9 +99,11 @@ fun InfoBox(
                     Box(
                         modifier = Modifier
                             .size(100.dp)
-                            .border(2.dp, MaterialTheme.colorScheme.primary)
-                            .background(Color.DarkGray)
-                    )
+                            .border(2.dp, MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ShimmerBox(modifier = Modifier.fillMaxSize())
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(6.dp))
@@ -109,10 +111,14 @@ fun InfoBox(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("LOC – $city", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
-                    Text("TMP – $temperature", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
-                    Text("CON – $condition", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
-                    Text("HUM – $humidity", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                    if (city == "Loading…" || temperature.contains("null")) {
+                        LoadingDots()
+                    } else {
+                        Text("LOC – $city", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                        Text("TMP – $temperature", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                        Text("CON – $condition", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                        Text("HUM – $humidity", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
+                    }
                 }
             }
         }

@@ -135,26 +135,18 @@ fun HomeScreen(
                         .padding(top = 6.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (weather == null) {
-                        Text(
-                            text = "Loading weather...",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    } else {
-                        InfoBox(
-                            modifier = Modifier.fillMaxWidth(),
-                            date = date,
-                            time = time,
-                            year = year,
-                            city = city,
-                            temperature = "${weather.current_weather.temperature}°C",
-                            condition = "N/A",
-                            humidity = "N/A",
-                            imageUrl = cityImage,
-                            colorMode = mode
-                        )
-                    }
+                    InfoBox(
+                        modifier = Modifier.fillMaxWidth(),
+                        date = date,
+                        time = time,
+                        year = year,
+                        city = city,
+                        temperature = weather?.current_weather?.temperature?.toString() + "°C",
+                        condition = "N/A",
+                        humidity = "N/A",
+                        imageUrl = cityImage,
+                        colorMode = mode
+                    )
                 }
             }
         )

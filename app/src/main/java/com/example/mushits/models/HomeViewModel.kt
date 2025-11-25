@@ -89,7 +89,7 @@ class HomeViewModel : ViewModel() {
                     val country = a.countryName
 
                     _cityName.value = listOfNotNull(county, country).joinToString(", ")
-                    Log.d("HomeViewModel", "🟦 Final city name used: ${_cityName.value}")
+                    Log.d("HomeViewModel", "Final city name used: ${_cityName.value}")
                     fetchCityImage(_cityName.value)
                 } else {
                     _cityName.value = "Unknown"
@@ -108,7 +108,7 @@ class HomeViewModel : ViewModel() {
                 val country = a.countryName
 
                 _cityName.value = listOfNotNull(county, country).joinToString(", ")
-                Log.d("HomeViewModel", "🟦 Final city name used: ${_cityName.value}")
+                Log.d("HomeViewModel", "Final city name used: ${_cityName.value}")
                 fetchCityImage(_cityName.value)
             } else {
                 _cityName.value = "Unknown"
@@ -151,7 +151,7 @@ class HomeViewModel : ViewModel() {
 
     private fun fetchCityImage(cityQuery: String) {
         viewModelScope.launch {
-            Log.d("HomeViewModel", "🟦 Searching Unsplash for: $cityQuery")
+            Log.d("HomeViewModel", "Searching Unsplash for: $cityQuery")
 
             try {
                 val response = UnsplashInstance.api.searchPhotos(
@@ -159,7 +159,7 @@ class HomeViewModel : ViewModel() {
                     clientId = BuildConfig.UNSPLASH_ACCESS_KEY
                 )
 
-                Log.d("HomeViewModel", "🟩 Unsplash results: ${response.results.size}")
+                Log.d("HomeViewModel", "Unsplash results: ${response.results.size}")
 
                 val photoUrl = response.results.firstOrNull()?.urls?.regular
 
@@ -167,12 +167,12 @@ class HomeViewModel : ViewModel() {
                     Log.e("HomeViewModel", "❌ No image found for: $cityQuery")
                     _cityImageUrl.value = null
                 } else {
-                    Log.d("HomeViewModel", "🟩 Selected image: $photoUrl")
+                    Log.d("HomeViewModel", "Selected image: $photoUrl")
                     _cityImageUrl.value = photoUrl
                 }
 
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "❌ Unsplash error", e)
+                Log.e("HomeViewModel", "Unsplash error", e)
                 _cityImageUrl.value = null
             }
         }
