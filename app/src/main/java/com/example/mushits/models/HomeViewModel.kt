@@ -10,9 +10,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mushits.network.ForecastApiInstance
-import com.example.mushits.network.GooglePlacesInstance
 import com.example.mushits.network.WeatherResponse
 import com.example.mushits.BuildConfig
+import com.example.mushits.network.UnsplashInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -150,64 +150,29 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun fetchCityImage(cityQuery: String) {
-        Log.d("HomeViewModel", "🟦 fetchCityImage() called with: $cityQuery")
-        Log.d("HomeViewModel", "🟦 API Key: ${BuildConfig.GOOGLE_PLACES_API_KEY.take(10)}...")
-
         viewModelScope.launch {
+            Log.d("HomeViewModel", "🟦 Searching Unsplash for: $cityQuery")
+
             try {
-                // 1. Find place
-                Log.d("HomeViewModel", "🟩 Calling FindPlace…")
-
-                val findResponse = GooglePlacesInstance.api.findPlace(
-                    input = cityQuery,
-                    key = BuildConfig.GOOGLE_PLACES_API_KEY
+                val response = UnsplashInstance.api.searchPhotos(
+                    query = cityQuery,
+                    clientId = BuildConfig.UNSPLASH_ACCESS_KEY
                 )
 
-                Log.d("HomeViewModel", "🟩 FindPlace response: $findResponse")
+                Log.d("HomeViewModel", "🟩 Unsplash results: ${response.results.size}")
 
-                val placeId = findResponse.candidates.firstOrNull()?.place_id
+                val photoUrl = response.results.firstOrNull()?.urls?.regular
 
-                if (placeId == null) {
-                    Log.e("HomeViewModel", "❌ No placeId found for query: $cityQuery")
+                if (photoUrl == null) {
+                    Log.e("HomeViewModel", "❌ No image found for: $cityQuery")
                     _cityImageUrl.value = null
-                    return@launch
+                } else {
+                    Log.d("HomeViewModel", "🟩 Selected image: $photoUrl")
+                    _cityImageUrl.value = photoUrl
                 }
-
-                Log.d("HomeViewModel", "🟩 Extracted placeId: $placeId")
-
-                // 2. Get details → photos list
-                Log.d("HomeViewModel", "🟩 Calling PlaceDetails for $placeId")
-
-                val details = GooglePlacesInstance.api.placeDetails(
-                    placeId = placeId,
-                    key = BuildConfig.GOOGLE_PLACES_API_KEY
-                )
-
-                Log.d("HomeViewModel", "🟩 PlaceDetails response: $details")
-
-                val photoRef = details.result?.photos?.firstOrNull()?.photo_reference
-
-                if (photoRef == null) {
-                    Log.e("HomeViewModel", "❌ No photo_reference found for placeId: $placeId")
-                    _cityImageUrl.value = null
-                    return@launch
-                }
-
-                Log.d("HomeViewModel", "🟩 photo_reference: $photoRef")
-
-                // 3. Generate real photo URL
-                val photoUrl =
-                    "https://maps.googleapis.com/maps/api/place/photo" +
-                            "?maxwidth=1500" +
-                            "&photo_reference=$photoRef" +
-                            "&key=${BuildConfig.GOOGLE_PLACES_API_KEY}"
-
-                Log.d("HomeViewModel", "🟦 Final Photo URL: $photoUrl")
-
-                _cityImageUrl.value = photoUrl
 
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "❌ Error fetching city image", e)
+                Log.e("HomeViewModel", "❌ Unsplash error", e)
                 _cityImageUrl.value = null
             }
         }

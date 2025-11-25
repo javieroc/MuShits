@@ -5,16 +5,16 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
-object GooglePlacesInstance {
+object UnsplashInstance {
     private val json = Json {
         ignoreUnknownKeys = true
     }
 
-    val api: PlacesApi by lazy {
+    val api: UnsplashApi by lazy {
         Retrofit.Builder()
-            .baseUrl("https://maps.googleapis.com/maps/api/")
+            .baseUrl("https://api.unsplash.com/")
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
-            .create(PlacesApi::class.java)
+            .create(UnsplashApi::class.java)
     }
 }
