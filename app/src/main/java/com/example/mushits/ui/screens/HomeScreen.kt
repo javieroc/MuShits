@@ -34,7 +34,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mushits.R
 import com.example.mushits.models.HomeViewModel
+import com.example.mushits.models.MusicViewModel
 import com.example.mushits.ui.components.InfoBox
+import com.example.mushits.ui.components.SongList
 import com.example.mushits.ui.theme.ColorMode
 import com.google.android.gms.location.LocationServices
 
@@ -45,6 +47,7 @@ fun HomeScreen(
     mode: ColorMode,
     onToggleMode: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
+    musicViewModel: MusicViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -55,6 +58,7 @@ fun HomeScreen(
     val year by viewModel.currentYear.collectAsState()
     val time by viewModel.currentTime.collectAsState()
     val cityImage by viewModel.cityImageUrl.collectAsState()
+    val songs by musicViewModel.songs.collectAsState()
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -77,6 +81,28 @@ fun HomeScreen(
             viewModel.fetchUserLocation(context, fusedLocationClient)
         }
     }
+
+    val audioPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                musicViewModel.loadSongs()
+            }
+        }
+
+    LaunchedEffect(Unit) {
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_MEDIA_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            audioPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
+        } else {
+            musicViewModel.loadSongs()
+        }
+    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -146,6 +172,12 @@ fun HomeScreen(
                         humidity = "N/A",
                         imageUrl = cityImage,
                         colorMode = mode
+                    )
+
+                    SongList(
+                        songs = songs,
+                        colorMode = mode,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
