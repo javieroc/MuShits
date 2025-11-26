@@ -60,8 +60,8 @@ fun InfoBox(
                     .padding(6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(text = date, color = MaterialTheme.colorScheme.secondary)
-                Text(text = year, color = MaterialTheme.colorScheme.secondary)
+                Text(text = date, color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp)
+                Text(text = year, color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -75,7 +75,7 @@ fun InfoBox(
             ) {
                 Text(
                     text = time,
-                    fontSize = 24.sp,
+                    fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
             }

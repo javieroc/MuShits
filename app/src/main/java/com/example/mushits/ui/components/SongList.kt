@@ -47,25 +47,43 @@ fun SongList(
             .border(1.dp, MaterialTheme.colorScheme.primary)
             .background(Color.Black.copy(alpha = 0.35f))
     ) {
-        if (songs.isEmpty()) {
-            Column(
-                Modifier.fillMaxWidth().padding(12.dp),
-                horizontalAlignment = Alignment.Start
+
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(6.dp),
+                horizontalArrangement = Arrangement.Start
             ) {
                 Text(
-                    "Loading songs…",
-                    color = MaterialTheme.colorScheme.primary,
+                    text = "My Awesome Music",
+                    color = MaterialTheme.colorScheme.secondary,
                     fontSize = 12.sp
                 )
-                Spacer(Modifier.height(4.dp))
-                LoadingDots()
             }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(songs) { song ->
-                    SongRow(song = song, matrix = matrix)
+
+            if (songs.isEmpty()) {
+                Column(
+                    Modifier.fillMaxWidth().padding(12.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        "Loading songs…",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 12.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    LoadingDots()
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    items(songs) { song ->
+                        SongRow(song = song, matrix = matrix)
+                    }
                 }
             }
         }
