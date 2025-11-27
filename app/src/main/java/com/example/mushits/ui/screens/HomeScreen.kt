@@ -2,8 +2,10 @@ package com.example.mushits.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -36,10 +39,12 @@ import com.example.mushits.R
 import com.example.mushits.models.HomeViewModel
 import com.example.mushits.models.MusicViewModel
 import com.example.mushits.ui.components.InfoBox
+import com.example.mushits.ui.components.Player
 import com.example.mushits.ui.components.SongList
 import com.example.mushits.ui.theme.ColorMode
 import com.google.android.gms.location.LocationServices
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -58,7 +63,10 @@ fun HomeScreen(
     val year by viewModel.currentYear.collectAsState()
     val time by viewModel.currentTime.collectAsState()
     val cityImage by viewModel.cityImageUrl.collectAsState()
+
     val songs by musicViewModel.songs.collectAsState()
+    val currentSong by musicViewModel.currentSong.collectAsState()
+    val isPlaying by musicViewModel.isPlaying.collectAsState()
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -150,6 +158,15 @@ fun HomeScreen(
                     )
                 }
             },
+            bottomBar = {
+                Player(
+                    song = currentSong,
+                    isPlaying = isPlaying,
+                    colorMode = mode,
+                    onPlayPause = { musicViewModel.togglePlayPause() },
+                    modifier = Modifier.fillMaxWidth().navigationBarsPadding()
+                )
+            },
             containerColor = Color.Transparent,
             content = { innerPadding ->
                 val weather = weatherState.value
@@ -177,7 +194,11 @@ fun HomeScreen(
                     SongList(
                         songs = songs,
                         colorMode = mode,
+                        onSongClick = { song ->
+                            musicViewModel.playSong(song)
+                        },
                         modifier = Modifier.fillMaxWidth()
+                            .weight(1f)
                     )
                 }
             }

@@ -2,6 +2,7 @@ package com.example.mushits.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +24,7 @@ import com.example.mushits.ui.theme.ColorMode
 fun SongList(
     songs: List<Song>,
     colorMode: ColorMode,
+    onSongClick: (Song) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val grayscale = ColorMatrix().apply { setToSaturation(0f) }
@@ -82,7 +84,7 @@ fun SongList(
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
                     items(songs) { song ->
-                        SongRow(song = song, matrix = matrix)
+                        SongRow(song = song, matrix = matrix, onClick = { onSongClick(song) })
                     }
                 }
             }
@@ -94,11 +96,13 @@ fun SongList(
 private fun SongRow(
     song: Song,
     matrix: ColorMatrix,
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Black.copy(alpha = 0.2f)),
+            .background(Color.Black.copy(alpha = 0.2f))
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (song.artUri != null) {

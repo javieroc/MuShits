@@ -6,6 +6,7 @@ data class Song(
     val artist: String,
     val duration: Long,
     val data: String,
+    val uri: String,
     val artUri: String?
 ) {
     val durationReadable: String

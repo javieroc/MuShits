@@ -5,17 +5,41 @@ import android.content.ContentUris
 import android.provider.MediaStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.exoplayer.ExoPlayer
 import com.example.mushits.data.Song
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import androidx.media3.common.MediaItem
+import androidx.core.net.toUri
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val context = application
+
+    private val player: ExoPlayer = ExoPlayer.Builder(context).build().apply {
+        setAudioAttributes(
+            AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                .build(),
+            true
+        )
+        setHandleAudioBecomingNoisy(true)
+    }
 
     private val contentResolver = application.contentResolver
 
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs: StateFlow<List<Song>> = _songs
+
+    private val _currentSong = MutableStateFlow<Song?>(null)
+    val currentSong: StateFlow<Song?> = _currentSong
+
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying
 
     fun loadSongs() {
         viewModelScope.launch {
@@ -59,6 +83,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 val duration = cursor.getLong(durationCol)
                 val data = cursor.getString(dataCol)
                 val albumId = cursor.getLong(albumIdCol)
+                val contentUri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    id
+                )
 
                 val artUri: String? =
                     if (albumId != 0L)
@@ -69,11 +97,40 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     else null
 
                 songList.add(
-                    Song(id, title, artist, duration, data, artUri)
+                    Song(id, title, artist, duration, data, uri = contentUri.toString(), artUri)
                 )
             }
         }
 
         return songList
+    }
+
+    fun playSong(song: Song) {
+        _currentSong.value = song
+
+        val uri = song.uri.toUri()
+
+        val mediaItem = MediaItem.fromUri(uri)
+        player.setMediaItem(mediaItem)
+
+        player.prepare()
+        player.play()
+
+        _isPlaying.value = true
+    }
+
+    fun togglePlayPause() {
+        if (player.isPlaying) {
+            player.pause()
+            _isPlaying.value = false
+        } else {
+            player.play()
+            _isPlaying.value = true
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        player.release()
     }
 }
