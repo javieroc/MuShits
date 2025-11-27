@@ -72,7 +72,6 @@ fun Player(
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Artwork
         AsyncImage(
             model = song.artUri,
             contentDescription = null,
@@ -90,7 +89,7 @@ fun Player(
             )
             Text(
                 text = song.artist,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 10.sp
             )
         }

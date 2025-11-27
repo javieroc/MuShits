@@ -16,11 +16,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -33,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mushits.R
@@ -131,20 +136,25 @@ fun HomeScreen(
             topBar = {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth() // match width of InfoBox
+                        .fillMaxWidth()
                         .border(1.dp, MaterialTheme.colorScheme.primary)
                 ) {
                     TopAppBar(
                         title = {
                             Box(modifier = Modifier.fillMaxWidth()) {
-                                Text("MuShits", color = MaterialTheme.colorScheme.primary)
+                                Text(
+                                    "MuShits",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 20.sp,
+                                )
                             }
                         },
                         actions = {
-                            TextButton(onClick = onToggleMode) {
-                                Text(
-                                    text = if (mode == ColorMode.MODE1) "Mode 2" else "Mode 1",
-                                    color = MaterialTheme.colorScheme.primary
+                            IconButton(onClick = onToggleMode) {
+                                Icon(
+                                    imageVector = if (mode == ColorMode.MODE1) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+                                    contentDescription = "Toggle Mode",
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         },
