@@ -177,6 +177,8 @@ fun HomeScreen(
                     colorMode = mode,
                     onPlayPause = musicViewModel::togglePlayPause,
                     onSeek = musicViewModel::seekTo,
+                    onNext = musicViewModel::playNext,
+                    onPrevious = musicViewModel::playPrevious,
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding()
                 )
             },

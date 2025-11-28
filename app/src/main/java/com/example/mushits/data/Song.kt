@@ -1,5 +1,7 @@
 package com.example.mushits.data;
 
+import android.annotation.SuppressLint
+
 data class Song(
     val id: Long,
     val title: String,
@@ -12,6 +14,7 @@ data class Song(
     val durationReadable: String
         get() = formatDuration(duration)
 
+    @SuppressLint("DefaultLocale")
     private fun formatDuration(ms: Long): String {
         val totalSeconds = ms / 1000
         val hours = totalSeconds / 3600

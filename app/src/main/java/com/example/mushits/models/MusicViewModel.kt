@@ -151,4 +151,33 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     fun seekTo(ms: Long) {
         player.seekTo(ms)
     }
+
+    fun playNext() {
+        val list = songs.value
+        val current = currentSong.value ?: return
+
+        val index = list.indexOfFirst { it.id == current.id }
+        if (index == -1 || index == list.lastIndex) return
+
+        playSong(list[index + 1])
+    }
+
+    fun playPrevious() {
+        val list = songs.value
+        val current = currentSong.value ?: return
+        val thresholdMs = 5000L
+
+        if (player.currentPosition > thresholdMs) {
+            player.seekTo(0)
+            return
+        }
+
+        val index = list.indexOfFirst { it.id == current.id }
+        if (index <= 0) {
+            player.seekTo(0)
+            return
+        }
+
+        playSong(list[index - 1])
+    }
 }

@@ -1,11 +1,15 @@
 package com.example.mushits.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +38,8 @@ fun Player(
     colorMode: ColorMode,
     onPlayPause: () -> Unit,
     onSeek: (Long) -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (song == null) {
@@ -136,18 +142,32 @@ fun Player(
                 Text(formatTime(position), fontSize = 10.sp, color = MaterialTheme.colorScheme.primary)
                 Text(formatTime(song.duration), fontSize = 10.sp, color = MaterialTheme.colorScheme.primary)
             }
-        }
 
-        IconButton(onClick = onPlayPause) {
-            Icon(
-                imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PlayerIconButton(
+                    onClick = onPrevious,
+                    icon = Icons.Filled.SkipPrevious
+                )
+
+                PlayerIconButton(
+                    onClick = onPlayPause,
+                    icon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow
+                )
+
+                PlayerIconButton(
+                    onClick = onNext,
+                    icon = Icons.Filled.SkipNext
+                )
+            }
         }
     }
 }
 
+@SuppressLint("DefaultLocale")
 fun formatTime(ms: Long): String {
     val totalSeconds = ms / 1000
     val minutes = totalSeconds / 60
