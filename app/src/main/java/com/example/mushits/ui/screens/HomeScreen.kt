@@ -170,17 +170,19 @@ fun HomeScreen(
                 }
             },
             bottomBar = {
-                Player(
-                    song = currentSong,
-                    isPlaying = isPlaying,
-                    position = position,
-                    colorMode = mode,
-                    onPlayPause = musicViewModel::togglePlayPause,
-                    onSeek = musicViewModel::seekTo,
-                    onNext = musicViewModel::playNext,
-                    onPrevious = musicViewModel::playPrevious,
-                    modifier = Modifier.fillMaxWidth().navigationBarsPadding()
-                )
+                if (currentSong != null) {
+                    Player(
+                        song = currentSong,
+                        isPlaying = isPlaying,
+                        position = position,
+                        colorMode = mode,
+                        onPlayPause = musicViewModel::togglePlayPause,
+                        onSeek = musicViewModel::seekTo,
+                        onNext = musicViewModel::playNext,
+                        onPrevious = musicViewModel::playPrevious,
+                        modifier = Modifier.fillMaxWidth().navigationBarsPadding()
+                    )
+                }
             },
             containerColor = Color.Transparent,
             content = { innerPadding ->
