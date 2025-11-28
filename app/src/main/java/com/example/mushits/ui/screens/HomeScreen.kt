@@ -72,6 +72,7 @@ fun HomeScreen(
     val songs by musicViewModel.songs.collectAsState()
     val currentSong by musicViewModel.currentSong.collectAsState()
     val isPlaying by musicViewModel.isPlaying.collectAsState()
+    val position by musicViewModel.position.collectAsState()
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -172,8 +173,10 @@ fun HomeScreen(
                 Player(
                     song = currentSong,
                     isPlaying = isPlaying,
+                    position = position,
                     colorMode = mode,
-                    onPlayPause = { musicViewModel.togglePlayPause() },
+                    onPlayPause = musicViewModel::togglePlayPause,
+                    onSeek = musicViewModel::seekTo,
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding()
                 )
             },

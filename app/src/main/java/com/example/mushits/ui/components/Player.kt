@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,12 +25,15 @@ import coil3.compose.AsyncImage
 import com.example.mushits.data.Song
 import com.example.mushits.ui.theme.ColorMode
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Player(
     song: Song?,
     isPlaying: Boolean,
+    position: Long,
     colorMode: ColorMode,
     onPlayPause: () -> Unit,
+    onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (song == null) {
@@ -70,28 +76,66 @@ fun Player(
             .background(Color.Black.copy(alpha = 0.35f))
             .border(1.dp, MaterialTheme.colorScheme.primary)
             .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         AsyncImage(
             model = song.artUri,
             contentDescription = null,
-            modifier = Modifier.size(55.dp),
+            modifier = Modifier.size(64.dp),
             colorFilter = ColorFilter.colorMatrix(matrix)
         )
 
         Spacer(Modifier.width(10.dp))
 
-        Column(Modifier.weight(1f)) {
+        Column(
+            Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
             Text(
                 text = song.title,
                 color = MaterialTheme.colorScheme.primary,
-                fontSize = 12.sp
+                fontSize = 10.sp
             )
             Text(
                 text = song.artist,
                 color = MaterialTheme.colorScheme.primary,
-                fontSize = 10.sp
+                fontSize = 8.sp
             )
+
+            Slider(
+                value = position.toFloat(),
+                onValueChange = { onSeek(it.toLong()) },
+                valueRange = 0f..song.duration.toFloat(),
+                modifier = Modifier.fillMaxWidth(),
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.Transparent,
+                    activeTrackColor = Color.Transparent,
+                    inactiveTrackColor = Color.Transparent
+                ),
+                track = { sliderState ->
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+                    ) {
+                        Box(
+                            Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(sliderState.value / song.duration.toFloat())
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                    }
+                }
+            )
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(formatTime(position), fontSize = 10.sp, color = MaterialTheme.colorScheme.primary)
+                Text(formatTime(song.duration), fontSize = 10.sp, color = MaterialTheme.colorScheme.primary)
+            }
         }
 
         IconButton(onClick = onPlayPause) {
@@ -102,4 +146,11 @@ fun Player(
             )
         }
     }
+}
+
+fun formatTime(ms: Long): String {
+    val totalSeconds = ms / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%02d:%02d", minutes, seconds)
 }

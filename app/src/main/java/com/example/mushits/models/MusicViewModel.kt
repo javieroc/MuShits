@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import androidx.media3.common.MediaItem
 import androidx.core.net.toUri
+import kotlinx.coroutines.delay
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -40,6 +41,19 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
+
+    private val _position = MutableStateFlow(0L)
+    val position: StateFlow<Long> = _position
+
+    init {
+        // continuous position updates
+        viewModelScope.launch {
+            while (true) {
+                _position.value = player.currentPosition
+                delay(200)
+            }
+        }
+    }
 
     fun loadSongs() {
         viewModelScope.launch {
@@ -132,5 +146,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         player.release()
+    }
+
+    fun seekTo(ms: Long) {
+        player.seekTo(ms)
     }
 }
