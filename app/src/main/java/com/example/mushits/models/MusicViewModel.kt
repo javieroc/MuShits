@@ -1,34 +1,77 @@
 package com.example.mushits.models
 
 import android.app.Application
+import android.content.ComponentName
 import android.content.ContentUris
 import android.provider.MediaStore
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.AudioAttributes
-import androidx.media3.common.C
-import androidx.media3.exoplayer.ExoPlayer
 import com.example.mushits.data.Song
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import androidx.media3.common.MediaItem
-import androidx.core.net.toUri
+import androidx.media3.common.Player
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import com.example.mushits.MusicService
+import com.google.common.util.concurrent.FutureCallback
+import com.google.common.util.concurrent.Futures
 import kotlinx.coroutines.delay
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
-
     private val context = application
 
-    private val player: ExoPlayer = ExoPlayer.Builder(context).build().apply {
-        setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
-                .build(),
-            true
+    private val _controller = MutableStateFlow<MediaController?>(null)
+    val controller: StateFlow<MediaController?> = _controller
+
+    fun connectToService() {
+        val token = SessionToken(context, ComponentName(context, MusicService::class.java))
+
+        val controllerFuture = MediaController.Builder(context, token).buildAsync()
+
+        Futures.addCallback(controllerFuture,
+            object : FutureCallback<MediaController> {
+                override fun onSuccess(result: MediaController) {
+                    _controller.value = result
+                    observePlayer(result)
+
+                    if (_songs.value.isNotEmpty()) {
+                        setPlaylist()
+                    }
+                }
+
+                override fun onFailure(t: Throwable) {
+                    t.printStackTrace()
+                }
+            },
+            ContextCompat.getMainExecutor(context)
         )
-        setHandleAudioBecomingNoisy(true)
+    }
+
+    private fun observePlayer(controller: MediaController) {
+        controller.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                _isPlaying.value = isPlaying
+            }
+
+            override fun onMediaItemTransition(item: MediaItem?, reason: Int) {
+                val song = _songs.value.find { it.uri == item?.localConfiguration?.uri.toString() }
+                _currentSong.value = song
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                _position.value = controller.currentPosition
+            }
+        })
+
+        viewModelScope.launch {
+            while (true) {
+                _position.value = controller.currentPosition
+                delay(200)
+            }
+        }
     }
 
     private val contentResolver = application.contentResolver
@@ -46,10 +89,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     val position: StateFlow<Long> = _position
 
     init {
-        // continuous position updates
         viewModelScope.launch {
             while (true) {
-                _position.value = player.currentPosition
+                controller.value?.let { c ->
+                    _position.value = c.currentPosition
+                }
                 delay(200)
             }
         }
@@ -57,7 +101,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadSongs() {
         viewModelScope.launch {
-            _songs.value = queryDeviceSongs()
+            val list = queryDeviceSongs()
+            _songs.value = list
+
+            controller.value?.let {
+                if (list.isNotEmpty()) setPlaylist()
+            }
         }
     }
 
@@ -120,36 +169,22 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun playSong(song: Song) {
-        _currentSong.value = song
-
-        val uri = song.uri.toUri()
-
-        val mediaItem = MediaItem.fromUri(uri)
-        player.setMediaItem(mediaItem)
-
-        player.prepare()
-        player.play()
-
-        _isPlaying.value = true
-    }
-
-    fun togglePlayPause() {
-        if (player.isPlaying) {
-            player.pause()
-            _isPlaying.value = false
-        } else {
-            player.play()
-            _isPlaying.value = true
+        val c = controller.value ?: return
+        val index = songs.value.indexOfFirst { it.id == song.id }
+        if (index != -1) {
+            c.seekTo(index, 0L)
+            c.play()
+            _currentSong.value = song
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        player.release()
+    fun togglePlayPause() {
+        val c = controller.value ?: return
+        if (c.isPlaying) c.pause() else c.play()
     }
 
     fun seekTo(ms: Long) {
-        player.seekTo(ms)
+        controller.value?.seekTo(ms)
     }
 
     fun playNext() {
@@ -163,21 +198,32 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun playPrevious() {
+        val c = controller.value ?: return
         val list = songs.value
         val current = currentSong.value ?: return
         val thresholdMs = 5000L
 
-        if (player.currentPosition > thresholdMs) {
-            player.seekTo(0)
+        if (c.currentPosition > thresholdMs) {
+            seekTo(0)
             return
         }
 
         val index = list.indexOfFirst { it.id == current.id }
         if (index <= 0) {
-            player.seekTo(0)
+            seekTo(0)
             return
         }
 
         playSong(list[index - 1])
+    }
+
+    fun setPlaylist() {
+        val c = controller.value ?: return
+        val s = songs.value
+        if (s.isEmpty()) return
+
+        val items = s.map { MediaItem.fromUri(it.uri) }
+        c.setMediaItems(items)
+        c.prepare()
     }
 }

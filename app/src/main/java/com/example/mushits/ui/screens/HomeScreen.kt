@@ -1,6 +1,7 @@
 package com.example.mushits.ui.screens
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mushits.MusicService
 import com.example.mushits.R
 import com.example.mushits.models.HomeViewModel
 import com.example.mushits.models.MusicViewModel
@@ -117,6 +119,13 @@ fun HomeScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        val ctx = context.applicationContext
+        val intent = Intent(ctx, MusicService::class.java)
+        ContextCompat.startForegroundService(ctx, intent)
+
+        musicViewModel.connectToService()
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
