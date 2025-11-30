@@ -1,5 +1,6 @@
 package com.example.mushits
 
+import android.content.Intent
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
@@ -26,6 +27,14 @@ class MusicService : MediaSessionService() {
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession {
         return session
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        session.release()
+        player.release()
+        stopSelf()
+
+        super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {
