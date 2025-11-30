@@ -61,17 +61,23 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 _currentSong.value = song
             }
 
-            override fun onPlaybackStateChanged(playbackState: Int) {
+            override fun onPlaybackStateChanged(state: Int) {
+                viewModelScope.launch {
+                    while (controller.isPlaying) {
+                        _position.value = controller.currentPosition
+                        delay(100)
+                    }
+                }
+            }
+
+            override fun onPositionDiscontinuity(
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int
+            ) {
                 _position.value = controller.currentPosition
             }
         })
-
-        viewModelScope.launch {
-            while (true) {
-                _position.value = controller.currentPosition
-                delay(200)
-            }
-        }
     }
 
     private val contentResolver = application.contentResolver
@@ -87,17 +93,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _position = MutableStateFlow(0L)
     val position: StateFlow<Long> = _position
-
-    init {
-        viewModelScope.launch {
-            while (true) {
-                controller.value?.let { c ->
-                    _position.value = c.currentPosition
-                }
-                delay(200)
-            }
-        }
-    }
 
     fun loadSongs() {
         viewModelScope.launch {

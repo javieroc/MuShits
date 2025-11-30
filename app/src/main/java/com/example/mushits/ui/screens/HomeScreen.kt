@@ -120,10 +120,6 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        val ctx = context.applicationContext
-        val intent = Intent(ctx, MusicService::class.java)
-        ContextCompat.startForegroundService(ctx, intent)
-
         musicViewModel.connectToService()
     }
 
