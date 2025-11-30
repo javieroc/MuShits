@@ -16,15 +16,39 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.mushits.MusicService
+import com.example.mushits.appDataStore
+import com.example.mushits.getLastPosition
+import com.example.mushits.getLastSongId
+import com.example.mushits.saveLastSong
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val context = application
 
+    private val prefs = context.appDataStore
+
+    private var positionUpdaterJob: Job? = null
+
     private val _controller = MutableStateFlow<MediaController?>(null)
     val controller: StateFlow<MediaController?> = _controller
+
+    private val contentResolver = application.contentResolver
+
+    private val _songs = MutableStateFlow<List<Song>>(emptyList())
+    val songs: StateFlow<List<Song>> = _songs
+
+    private val _currentSong = MutableStateFlow<Song?>(null)
+    val currentSong: StateFlow<Song?> = _currentSong
+
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying: StateFlow<Boolean> = _isPlaying
+
+    private val _position = MutableStateFlow(0L)
+    val position: StateFlow<Long> = _position
 
     fun connectToService() {
         val token = SessionToken(context, ComponentName(context, MusicService::class.java))
@@ -52,22 +76,27 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun observePlayer(controller: MediaController) {
         controller.addListener(object : Player.Listener {
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 _isPlaying.value = isPlaying
+
+                if (isPlaying) {
+                    if (positionUpdaterJob?.isActive != true) {
+                        positionUpdaterJob = viewModelScope.launch {
+                            while (controller.isPlaying) {
+                                _position.value = controller.currentPosition
+                                delay(100)
+                            }
+                        }
+                    }
+                } else {
+                    positionUpdaterJob?.cancel()
+                }
             }
 
             override fun onMediaItemTransition(item: MediaItem?, reason: Int) {
                 val song = _songs.value.find { it.uri == item?.localConfiguration?.uri.toString() }
                 _currentSong.value = song
-            }
-
-            override fun onPlaybackStateChanged(state: Int) {
-                viewModelScope.launch {
-                    while (controller.isPlaying) {
-                        _position.value = controller.currentPosition
-                        delay(100)
-                    }
-                }
             }
 
             override fun onPositionDiscontinuity(
@@ -77,22 +106,16 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             ) {
                 _position.value = controller.currentPosition
             }
+
+            override fun onEvents(player: Player, events: Player.Events) {
+                _currentSong.value?.let { song ->
+                    viewModelScope.launch {
+                        saveLastSong(context, song.id, player.currentPosition)
+                    }
+                }
+            }
         })
     }
-
-    private val contentResolver = application.contentResolver
-
-    private val _songs = MutableStateFlow<List<Song>>(emptyList())
-    val songs: StateFlow<List<Song>> = _songs
-
-    private val _currentSong = MutableStateFlow<Song?>(null)
-    val currentSong: StateFlow<Song?> = _currentSong
-
-    private val _isPlaying = MutableStateFlow(false)
-    val isPlaying: StateFlow<Boolean> = _isPlaying
-
-    private val _position = MutableStateFlow(0L)
-    val position: StateFlow<Long> = _position
 
     fun loadSongs() {
         viewModelScope.launch {
@@ -170,6 +193,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             c.seekTo(index, 0L)
             c.play()
             _currentSong.value = song
+
+            viewModelScope.launch {
+                saveLastSong(context, song.id, 0L)
+            }
         }
     }
 
@@ -219,6 +246,20 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
         val items = s.map { MediaItem.fromUri(it.uri) }
         c.setMediaItems(items)
-        c.prepare()
+
+        viewModelScope.launch {
+            val lastSongId = getLastSongId(context).first()
+            val lastPosition = getLastPosition(context).first()
+
+            if (lastSongId != -1L) {
+                val index = s.indexOfFirst { it.id == lastSongId }
+                if (index != -1) {
+                    c.seekTo(index, lastPosition)
+                    _currentSong.value = s[index]
+                }
+            }
+
+            c.prepare()
+        }
     }
 }
