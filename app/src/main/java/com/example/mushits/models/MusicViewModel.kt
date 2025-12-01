@@ -16,7 +16,6 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.mushits.MusicService
-import com.example.mushits.appDataStore
 import com.example.mushits.getLastPosition
 import com.example.mushits.getLastSongId
 import com.example.mushits.saveLastSong
@@ -28,8 +27,6 @@ import kotlinx.coroutines.flow.first
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val context = application
-
-    private val prefs = context.appDataStore
 
     private var positionUpdaterJob: Job? = null
 
@@ -95,7 +92,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onMediaItemTransition(item: MediaItem?, reason: Int) {
-                val song = _songs.value.find { it.uri == item?.localConfiguration?.uri.toString() }
+                val song = item?.mediaId?.let { mediaId ->
+                    _songs.value.find { it.id.toString() == mediaId }
+                }
                 _currentSong.value = song
             }
 
@@ -105,14 +104,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 reason: Int
             ) {
                 _position.value = controller.currentPosition
-            }
-
-            override fun onEvents(player: Player, events: Player.Events) {
-                _currentSong.value?.let { song ->
-                    viewModelScope.launch {
-                        saveLastSong(context, song.id, player.currentPosition)
-                    }
-                }
             }
         })
     }
@@ -244,7 +235,12 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         val s = songs.value
         if (s.isEmpty()) return
 
-        val items = s.map { MediaItem.fromUri(it.uri) }
+        val items = s.map {
+            MediaItem.Builder()
+                .setUri(it.uri)
+                .setMediaId(it.id.toString())
+                .build()
+        }
         c.setMediaItems(items)
 
         viewModelScope.launch {
