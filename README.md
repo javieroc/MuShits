@@ -11,11 +11,10 @@ The app comes with two visual modes:
 
 ## 📸 Screenshots
 
-### White/Black Mode
-![White Mode](screenshots/white_mode.jpg)
-
-### Green/Black Mode
-![Green Mode](screenshots/green_mode.jpg)
+<p align="center">
+  <img src="screenshots/white_mode.jpg" alt="White Mode" width="45%" />
+  <img src="screenshots/green_mode.jpg" alt="Green Mode" width="45%" />
+</p>
 
 ---
 
