@@ -3,6 +3,8 @@ package com.example.mushits.models
 import android.app.Application
 import android.content.ComponentName
 import android.content.ContentUris
+import android.content.Context
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
@@ -12,7 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.example.mushits.MusicService
@@ -46,6 +50,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _position = MutableStateFlow(0L)
     val position: StateFlow<Long> = _position
+
+    private var ussrPlayer: ExoPlayer? = null
+    private val _isUssrPlaying = MutableStateFlow(false)
+    val isUssrPlaying = _isUssrPlaying
 
     fun connectToService() {
         val token = SessionToken(context, ComponentName(context, MusicService::class.java))
@@ -178,7 +186,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun playSong(song: Song) {
+        stopUssr()
         val c = controller.value ?: return
+
         val index = songs.value.indexOfFirst { it.id == song.id }
         if (index != -1) {
             c.seekTo(index, 0L)
@@ -257,5 +267,47 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
             c.prepare()
         }
+    }
+
+    fun stopUssr() {
+        ussrPlayer?.stop()
+        ussrPlayer?.release()
+        ussrPlayer = null
+        _isUssrPlaying.value = false
+    }
+
+    fun toggleUssrSong(context: Context) {
+        if (_isUssrPlaying.value) {
+            stopUssr()
+            return
+        }
+
+        val player = ExoPlayer.Builder(context).build()
+        ussrPlayer = player
+
+        val resUri = Uri.parse("android.resource://${context.packageName}/raw/ussr_song")
+
+        val item = MediaItem.Builder()
+            .setUri(resUri)
+            .setMediaId("ussr_song")
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle("USSR Anthem")
+                    .setArtist("MuShits")
+                    .build()
+            )
+            .build()
+
+        player.setMediaItem(item)
+
+        player.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) stopUssr()
+            }
+        })
+
+        player.prepare()
+        player.play()
+        _isUssrPlaying.value = true
     }
 }
