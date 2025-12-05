@@ -10,12 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.mushits.ui.theme.ColorMode
+import com.example.mushits.ui.theme.getMatrix
 
 @Composable
 fun InfoBox(
@@ -30,31 +30,7 @@ fun InfoBox(
     colorMode: ColorMode,
     modifier: Modifier = Modifier
 ) {
-    val grayscale = ColorMatrix().apply { setToSaturation(0f) }
-
-    val greenMono = ColorMatrix(
-        floatArrayOf(
-            0.3f, 0.3f, 0.3f, 0f, 0f,
-            0f,   1f,   0f,  0f, 0f,
-            0.3f, 0.3f, 0.3f, 0f, 0f,
-            0f,   0f,   0f,  1f, 0f
-        )
-    )
-
-    val redMono = ColorMatrix(
-        floatArrayOf(
-            1f, 0f, 0f, 0f, 0f,
-            0.3f, 0.3f, 0.3f, 0f, 0f,
-            0.3f, 0.3f, 0.3f, 0f, 0f,
-            0f, 0f, 0f, 1f, 0f
-        )
-    )
-
-    val matrix = when (colorMode) {
-        ColorMode.MODE1 -> grayscale
-        ColorMode.MODE2 -> greenMono
-        ColorMode.USSR_MODE -> redMono
-    }
+    val matrix = getMatrix(colorMode)
 
     Box(
         modifier = modifier
