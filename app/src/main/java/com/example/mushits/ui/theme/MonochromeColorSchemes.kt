@@ -16,7 +16,6 @@ val MonochromeMode1 = darkColorScheme(
     surface = Color.Black,
     onSurface = Color(0xFFF4F6F5),
 
-    // Optional
     tertiary = Color(0xFFF4F6F5)
 )
 
@@ -33,6 +32,21 @@ val MonochromeMode2 = darkColorScheme(
     surface = Color.Black,
     onSurface = Color(0xFF37D17B),
 
-    // Optional
     tertiary = Color(0xFF37D17B)
+)
+
+val UssrRedMode = darkColorScheme(
+    primary = Color(0xFFA4133C),
+    onPrimary = Color.Black,
+
+    secondary = Color.Black,
+    onSecondary = Color(0xFFA4133C),
+
+    background = Color.Black,
+    onBackground = Color(0xFFA4133C),
+
+    surface = Color.Black,
+    onSurface = Color(0xFFA4133C),
+
+    tertiary = Color(0xFFA4133C)
 )

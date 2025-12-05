@@ -52,6 +52,7 @@ import com.example.mushits.ui.components.InfoBox
 import com.example.mushits.ui.components.Player
 import com.example.mushits.ui.components.SongList
 import com.example.mushits.ui.theme.ColorMode
+import com.example.mushits.ui.theme.MuShitsTheme
 import com.google.android.gms.location.LocationServices
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -78,6 +79,12 @@ fun HomeScreen(
     val currentSong by musicViewModel.currentSong.collectAsState()
     val isPlaying by musicViewModel.isPlaying.collectAsState()
     val position by musicViewModel.position.collectAsState()
+
+    val isUssrMode by musicViewModel.isUssrPlaying.collectAsState()
+
+    val effectiveMode =
+        if (isUssrMode) ColorMode.USSR_MODE
+        else mode
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -126,125 +133,127 @@ fun HomeScreen(
         musicViewModel.connectToService()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.bg1),
-            contentDescription = "Earth Background",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+    MuShitsTheme(mode = effectiveMode) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.bg1),
+                contentDescription = "Earth Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.6f))
-        )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            )
 
-        Scaffold(
-            modifier = modifier.fillMaxSize().padding(4.dp),
-            topBar = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, MaterialTheme.colorScheme.primary)
-                ) {
-                    TopAppBar(
-                        title = {
-                            Box(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    "MuShits",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 20.sp,
-                                )
-                            }
-                        },
-                        actions = {
-                            Surface(
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.surface,
-                                tonalElevation = 4.dp,
-                                shadowElevation = 4.dp,
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .clickable { musicViewModel.toggleUssrSong(context) }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ussr_logo),
-                                    contentDescription = "Toggle USSR Song",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(8.dp)
-                                )
-                            }
-
-                            IconButton(onClick = onToggleMode) {
-                                Icon(
-                                    imageVector = if (mode == ColorMode.MODE1) Icons.Filled.LightMode else Icons.Filled.DarkMode,
-                                    contentDescription = "Toggle Mode",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent,
-                            titleContentColor = MaterialTheme.colorScheme.primary
-                        ),
+            Scaffold(
+                modifier = modifier.fillMaxSize().padding(4.dp),
+                topBar = {
+                    Box(
                         modifier = Modifier
-                            .background(Color.Transparent),
-                        scrollBehavior = null,
-                    )
-                }
-            },
-            bottomBar = {
-                if (currentSong != null) {
-                    Player(
-                        song = currentSong,
-                        isPlaying = isPlaying,
-                        position = position,
-                        colorMode = mode,
-                        onPlayPause = musicViewModel::togglePlayPause,
-                        onSeek = musicViewModel::seekTo,
-                        onNext = musicViewModel::playNext,
-                        onPrevious = musicViewModel::playPrevious,
-                        modifier = Modifier.fillMaxWidth().navigationBarsPadding()
-                    )
-                }
-            },
-            containerColor = Color.Transparent,
-            content = { innerPadding ->
-                val weather = weatherState.value
+                            .fillMaxWidth()
+                            .border(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        TopAppBar(
+                            title = {
+                                Box(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        "MuShits",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 20.sp,
+                                    )
+                                }
+                            },
+                            actions = {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.surface,
+                                    tonalElevation = 4.dp,
+                                    shadowElevation = 4.dp,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .clickable { musicViewModel.toggleUssrSong(context) }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ussr_logo),
+                                        contentDescription = "Toggle USSR Song",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(innerPadding)
-                        .padding(top = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    InfoBox(
-                        modifier = Modifier.fillMaxWidth(),
-                        date = date,
-                        time = time,
-                        year = year,
-                        city = city,
-                        temperature = weather?.current_weather?.temperature?.toString() + "°C",
-                        condition = "N/A",
-                        humidity = "N/A",
-                        imageUrl = cityImage,
-                        colorMode = mode
-                    )
+                                IconButton(onClick = onToggleMode) {
+                                    Icon(
+                                        imageVector = if (mode == ColorMode.MODE1) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+                                        contentDescription = "Toggle Mode",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = Color.Transparent,
+                                titleContentColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier
+                                .background(Color.Transparent),
+                            scrollBehavior = null,
+                        )
+                    }
+                },
+                bottomBar = {
+                    if (currentSong != null) {
+                        Player(
+                            song = currentSong,
+                            isPlaying = isPlaying,
+                            position = position,
+                            colorMode = effectiveMode,
+                            onPlayPause = musicViewModel::togglePlayPause,
+                            onSeek = musicViewModel::seekTo,
+                            onNext = musicViewModel::playNext,
+                            onPrevious = musicViewModel::playPrevious,
+                            modifier = Modifier.fillMaxWidth().navigationBarsPadding()
+                        )
+                    }
+                },
+                containerColor = Color.Transparent,
+                content = { innerPadding ->
+                    val weather = weatherState.value
 
-                    SongList(
-                        songs = songs,
-                        colorMode = mode,
-                        onSongClick = { song ->
-                            musicViewModel.playSong(song)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                            .weight(1f)
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(innerPadding)
+                            .padding(top = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        InfoBox(
+                            modifier = Modifier.fillMaxWidth(),
+                            date = date,
+                            time = time,
+                            year = year,
+                            city = city,
+                            temperature = weather?.current_weather?.temperature?.toString() + "°C",
+                            condition = "N/A",
+                            humidity = "N/A",
+                            imageUrl = cityImage,
+                            colorMode = effectiveMode
+                        )
+
+                        SongList(
+                            songs = songs,
+                            colorMode = effectiveMode,
+                            onSongClick = { song ->
+                                musicViewModel.playSong(song)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                                .weight(1f)
+                        )
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }

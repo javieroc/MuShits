@@ -14,7 +14,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.example.mushits.ui.screens.HomeScreen
 import com.example.mushits.ui.theme.ColorMode
-import com.example.mushits.ui.theme.MuShitsTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -28,20 +27,19 @@ class MainActivity : ComponentActivity() {
             var mode by remember(storedMode) { mutableStateOf(storedMode) }
 
             val scope = rememberCoroutineScope()
-            MuShitsTheme(mode = mode) {
-                HomeScreen(
-                    mode = mode,
-                    onToggleMode = {
-                        mode = if (mode == ColorMode.MODE1)
-                            ColorMode.MODE2
-                        else ColorMode.MODE1
 
-                        scope.launch {
-                            saveColorMode(context, mode)
-                        }
+            HomeScreen(
+                mode = mode,
+                onToggleMode = {
+                    mode = if (mode == ColorMode.MODE1)
+                        ColorMode.MODE2
+                    else ColorMode.MODE1
+
+                    scope.launch {
+                        saveColorMode(context, mode)
                     }
-                )
-            }
+                }
+            )
         }
     }
 }

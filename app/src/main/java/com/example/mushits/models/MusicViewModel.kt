@@ -282,6 +282,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+        controller.value?.pause()
+
         val player = ExoPlayer.Builder(context).build()
         ussrPlayer = player
 

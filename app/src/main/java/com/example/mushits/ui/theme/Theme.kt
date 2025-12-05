@@ -5,7 +5,8 @@ import androidx.compose.runtime.Composable
 
 enum class ColorMode {
     MODE1,
-    MODE2
+    MODE2,
+    USSR_MODE
 }
 
 @Composable
@@ -16,6 +17,7 @@ fun MuShitsTheme(
     val colorScheme = when (mode) {
         ColorMode.MODE1 -> MonochromeMode1
         ColorMode.MODE2 -> MonochromeMode2
+        ColorMode.USSR_MODE -> UssrRedMode
     }
 
     MaterialTheme(

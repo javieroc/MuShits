@@ -30,7 +30,6 @@ fun InfoBox(
     colorMode: ColorMode,
     modifier: Modifier = Modifier
 ) {
-    // Build the proper color matrix for image
     val grayscale = ColorMatrix().apply { setToSaturation(0f) }
 
     val greenMono = ColorMatrix(
@@ -42,9 +41,19 @@ fun InfoBox(
         )
     )
 
+    val redMono = ColorMatrix(
+        floatArrayOf(
+            1f, 0f, 0f, 0f, 0f,
+            0.3f, 0.3f, 0.3f, 0f, 0f,
+            0.3f, 0.3f, 0.3f, 0f, 0f,
+            0f, 0f, 0f, 1f, 0f
+        )
+    )
+
     val matrix = when (colorMode) {
         ColorMode.MODE1 -> grayscale
         ColorMode.MODE2 -> greenMono
+        ColorMode.USSR_MODE -> redMono
     }
 
     Box(

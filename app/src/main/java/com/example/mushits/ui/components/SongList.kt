@@ -38,9 +38,19 @@ fun SongList(
         )
     )
 
+    val redMono = ColorMatrix(
+        floatArrayOf(
+            1f, 0f, 0f, 0f, 0f,
+            0.3f, 0.3f, 0.3f, 0f, 0f,
+            0.3f, 0.3f, 0.3f, 0f, 0f,
+            0f, 0f, 0f, 1f, 0f
+        )
+    )
+
     val matrix = when (colorMode) {
         ColorMode.MODE1 -> grayscale
         ColorMode.MODE2 -> greenMono
+        ColorMode.USSR_MODE -> redMono
     }
 
     Box(
