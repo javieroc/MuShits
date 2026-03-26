@@ -86,50 +86,24 @@ fun HomeScreen(
         if (isUssrMode) ColorMode.USSR_MODE
         else mode
 
-    val permissionLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) {
-                viewModel.fetchUserLocation(context, fusedLocationClient)
-            }
-        }
-
-    LaunchedEffect(Unit) {
-        val granted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (!granted) {
-            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        } else {
+    val permissionsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
             viewModel.fetchUserLocation(context, fusedLocationClient)
         }
-    }
-
-    val audioPermissionLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) {
-                musicViewModel.loadSongs()
-            }
-        }
-
-    LaunchedEffect(Unit) {
-        val granted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_MEDIA_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
-        if (!granted) {
-            audioPermissionLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
-        } else {
+        if (permissions[Manifest.permission.READ_MEDIA_AUDIO] == true) {
             musicViewModel.loadSongs()
         }
     }
 
     LaunchedEffect(Unit) {
+        permissionsLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.READ_MEDIA_AUDIO
+            )
+        )
         musicViewModel.connectToService()
     }
 
