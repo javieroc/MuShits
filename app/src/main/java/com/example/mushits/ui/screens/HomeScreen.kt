@@ -1,7 +1,6 @@
 package com.example.mushits.ui.screens
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,11 +12,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
@@ -43,14 +47,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mushits.R
 import com.example.mushits.models.HomeViewModel
 import com.example.mushits.models.MusicViewModel
+import com.example.mushits.models.SoundViewModel
 import com.example.mushits.ui.components.InfoBox
 import com.example.mushits.ui.components.Player
 import com.example.mushits.ui.components.SongList
+import com.example.mushits.ui.components.SoundBoard
 import com.example.mushits.ui.theme.ColorMode
 import com.example.mushits.ui.theme.MuShitsTheme
 import com.google.android.gms.location.LocationServices
@@ -63,7 +68,8 @@ fun HomeScreen(
     mode: ColorMode,
     onToggleMode: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
-    musicViewModel: MusicViewModel = viewModel()
+    musicViewModel: MusicViewModel = viewModel(),
+    soundViewModel: SoundViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -85,6 +91,8 @@ fun HomeScreen(
     val effectiveMode =
         if (isUssrMode) ColorMode.USSR_MODE
         else mode
+
+    val pagerState = rememberPagerState(pageCount = { 2 })
 
     val permissionsLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -203,18 +211,33 @@ fun HomeScreen(
                             .padding(top = 6.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        InfoBox(
-                            modifier = Modifier.fillMaxWidth(),
-                            date = date,
-                            time = time,
-                            year = year,
-                            city = city,
-                            temperature = weather?.current_weather?.temperature?.toString() + "°C",
-                            condition = "N/A",
-                            humidity = "N/A",
-                            imageUrl = cityImage,
-                            colorMode = effectiveMode
-                        )
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { page ->
+                            if (page == 0) {
+                                InfoBox(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    date = date,
+                                    time = time,
+                                    year = year,
+                                    city = city,
+                                    temperature = weather?.current_weather?.temperature?.toString() + "°C",
+                                    condition = "N/A",
+                                    humidity = "N/A",
+                                    imageUrl = cityImage,
+                                    colorMode = effectiveMode
+                                )
+                            } else {
+                                SoundBoard(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colorMode = effectiveMode,
+                                    onSoundClick = { index ->
+                                        soundViewModel.playSound(index)
+                                    }
+                                )
+                            }
+                        }
 
                         SongList(
                             songs = songs,
