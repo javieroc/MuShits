@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,12 +14,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mushits.ui.theme.ColorMode
 
 @Composable
 fun SoundBoard(
     onSoundClick: (Int) -> Unit,
-    colorMode: ColorMode,
     modifier: Modifier = Modifier
 ) {
     val soundNames = listOf(
@@ -33,7 +29,7 @@ fun SoundBoard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp) // Approximate height to match InfoBox
+            .height(187.dp) // Fixed minimal common height
             .border(1.dp, MaterialTheme.colorScheme.primary)
             .background(Color.Black.copy(alpha = 0.4f))
     ) {
@@ -52,17 +48,25 @@ fun SoundBoard(
                 )
             }
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.fillMaxSize().padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                modifier = Modifier.padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(soundNames.size) { index ->
-                    SoundButton(
-                        name = soundNames[index],
-                        onClick = { onSoundClick(index) }
-                    )
+                for (i in 0 until 3) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        for (j in 0 until 4) {
+                            val index = i * 4 + j
+                            Box(modifier = Modifier.weight(1f)) {
+                                SoundButton(
+                                    name = soundNames[index],
+                                    onClick = { onSoundClick(index) }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -76,18 +80,19 @@ fun SoundButton(
 ) {
     Box(
         modifier = Modifier
-            .height(40.dp)
+            .fillMaxWidth()
+            .height(45.dp)
             .border(1.dp, MaterialTheme.colorScheme.primary)
             .clickable { onClick() }
-            .padding(4.dp),
+            .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = name,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 10.sp,
+            fontSize = 9.sp,
             textAlign = TextAlign.Center,
-            lineHeight = 12.sp
+            lineHeight = 10.sp
         )
     }
 }

@@ -231,7 +231,6 @@ fun HomeScreen(
                             } else {
                                 SoundBoard(
                                     modifier = Modifier.fillMaxWidth(),
-                                    colorMode = effectiveMode,
                                     onSoundClick = { index ->
                                         soundViewModel.playSound(index)
                                     }

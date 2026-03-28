@@ -9,6 +9,7 @@ import com.example.mushits.R
 class SoundViewModel(application: Application) : AndroidViewModel(application) {
     private val soundPool: SoundPool
     private val soundMap = mutableMapOf<Int, Int>()
+    private var lastStreamId: Int = 0
 
     init {
         val attrs = AudioAttributes.Builder()
@@ -16,7 +17,7 @@ class SoundViewModel(application: Application) : AndroidViewModel(application) {
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
         soundPool = SoundPool.Builder()
-            .setMaxStreams(5)
+            .setMaxStreams(1) // Set to 1 to help prevent overlaps at the pool level too
             .setAudioAttributes(attrs)
             .build()
 
@@ -35,8 +36,13 @@ class SoundViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun playSound(index: Int) {
+        // Stop the previous sound if it's still playing
+        if (lastStreamId != 0) {
+            soundPool.stop(lastStreamId)
+        }
+
         soundMap[index]?.let { id ->
-            soundPool.play(id, 1f, 1f, 0, 0, 1f)
+            lastStreamId = soundPool.play(id, 1f, 1f, 0, 0, 1f)
         }
     }
 
