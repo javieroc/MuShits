@@ -35,7 +35,7 @@ fun InfoBox(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(187.dp) // Shared minimal common height
+            .height(187.dp)
             .border(1.dp, MaterialTheme.colorScheme.primary)
             .background(Color.Black.copy(alpha = 0.4f))
     ) {
