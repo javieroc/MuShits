@@ -9,16 +9,16 @@ data class WeatherResponse(
     val latitude: Double,
     val longitude: Double,
     val timezone: String,
-    val current_weather: CurrentWeather,
+    val current: CurrentWeather,
     val daily: DailyWeather? = null
 )
 
 @Serializable
 data class CurrentWeather(
-    val temperature: Double,
-    val windspeed: Double,
-    val winddirection: Double,
-    val weathercode: Int,
+    val temperature_2m: Double,
+    val relative_humidity_2m: Int? = null,
+    val weather_code: Int,
+    val wind_speed_10m: Double,
     val time: String
 )
 
@@ -33,7 +33,7 @@ interface ForecastAPI {
     suspend fun getWeather(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
-        @Query("current_weather") currentWeather: Boolean = true,
+        @Query("current") current: String = "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m",
         @Query("daily") daily: String = "sunrise,sunset",
         @Query("timezone") timezone: String = "auto"
     ): WeatherResponse

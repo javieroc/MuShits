@@ -12,11 +12,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -56,6 +53,7 @@ import com.example.mushits.ui.components.InfoBox
 import com.example.mushits.ui.components.Player
 import com.example.mushits.ui.components.SongList
 import com.example.mushits.ui.components.SoundBoard
+import com.example.mushits.ui.components.getWeatherDescription
 import com.example.mushits.ui.theme.ColorMode
 import com.example.mushits.ui.theme.MuShitsTheme
 import com.google.android.gms.location.LocationServices
@@ -222,9 +220,9 @@ fun HomeScreen(
                                     time = time,
                                     year = year,
                                     city = city,
-                                    temperature = weather?.current_weather?.temperature?.toString() + "°C",
-                                    condition = "N/A",
-                                    humidity = "N/A",
+                                    temperature = weather?.current?.temperature_2m?.toString() + "°C",
+                                    condition = weather?.current?.weather_code?.let { getWeatherDescription(it) } ?: "N/A",
+                                    humidity = weather?.current?.relative_humidity_2m?.toString() + "%",
                                     imageUrl = cityImage,
                                     colorMode = effectiveMode
                                 )
