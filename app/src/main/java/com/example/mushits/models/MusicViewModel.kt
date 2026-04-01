@@ -158,23 +158,18 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
-                val title = cursor.getString(titleCol)
-                val artist = cursor.getString(artistCol)
+                val title = cursor.getString(titleCol) ?: "Unknown Title"
+                val artist = cursor.getString(artistCol) ?: "Unknown Artist"
                 val duration = cursor.getLong(durationCol)
                 val data = cursor.getString(dataCol)
                 val albumId = cursor.getLong(albumIdCol)
+
                 val contentUri = ContentUris.withAppendedId(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     id
                 )
 
-                val artUri: String? =
-                    if (albumId != 0L)
-                        ContentUris.withAppendedId(
-                            MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                            albumId
-                        ).toString()
-                    else null
+                val artUri = resolveArtUri(id, albumId)
 
                 songList.add(
                     Song(id, title, artist, duration, data, uri = contentUri.toString(), artUri)
@@ -183,6 +178,33 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         return songList
+    }
+
+    private fun resolveArtUri(songId: Long, albumId: Long): String? {
+        val perSongUri = ContentUris.withAppendedId(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            songId
+        ).buildUpon().appendPath("albumart").build()
+
+        if (uriIsAccessible(perSongUri)) return perSongUri.toString()
+
+        if (albumId > 0) {
+            val albumArtUri = ContentUris.withAppendedId(
+                Uri.parse("content://media/external/audio/albumart"),
+                albumId
+            )
+            if (uriIsAccessible(albumArtUri)) return albumArtUri.toString()
+        }
+
+        return null
+    }
+
+    private fun uriIsAccessible(uri: Uri): Boolean {
+        return try {
+            contentResolver.openInputStream(uri)?.use { true } ?: false
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun playSong(song: Song) {
