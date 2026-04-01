@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -150,24 +149,23 @@ private fun AlbumArt(
     }
 
     Box(modifier = modifier.size(50.dp)) {
-        // SubcomposeAsyncImage lets us compose custom content for each state
-        // (loading, success, error) without separate AsyncImage + overlay hacks.
         SubcomposeAsyncImage(
             model = artUri,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
         ) {
-            when (val state = painter.state.collectAsState().value) {
+            val state by painter.state.collectAsState()
+            when (state) {
+                is AsyncImagePainter.State.Loading -> {
+                    ShimmerBox(Modifier.fillMaxSize())
+                }
                 is AsyncImagePainter.State.Success -> {
                     SubcomposeAsyncImageContent(
-                        modifier = Modifier
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
                         colorFilter = ColorFilter.colorMatrix(matrix)
                     )
                 }
-                // Show the fallback while loading so there's no blank flash,
-                // and also on error (missing / inaccessible art).
                 else -> fallback()
             }
         }

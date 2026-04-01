@@ -6,23 +6,30 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.example.mushits.data.Song
 import com.example.mushits.ui.theme.ColorMode
 import com.example.mushits.ui.theme.getMatrix
@@ -54,12 +61,42 @@ fun Player(
             .padding(8.dp),
         verticalAlignment = Alignment.Top
     ) {
-        AsyncImage(
-            model = song.artUri,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            colorFilter = ColorFilter.colorMatrix(matrix)
-        )
+        Box(modifier = Modifier.size(64.dp)) {
+            SubcomposeAsyncImage(
+                model = song.artUri,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                val state by painter.state.collectAsState()
+                when (state) {
+                    is AsyncImagePainter.State.Loading -> {
+                        ShimmerBox(Modifier.fillMaxSize())
+                    }
+                    is AsyncImagePainter.State.Success -> {
+                        SubcomposeAsyncImageContent(
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            colorFilter = ColorFilter.colorMatrix(matrix)
+                        )
+                    }
+                    else -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.3f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MusicNote,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(38.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         Spacer(Modifier.width(10.dp))
 
