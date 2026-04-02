@@ -1,0 +1,52 @@
+package com.connan.mushits.ui.theme
+
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.ui.graphics.Color
+
+val MonochromeMode1 = darkColorScheme(
+    primary = Color(0xFFF4F6F5),
+    onPrimary = Color.Black,
+
+    secondary = Color.Black,
+    onSecondary = Color(0xFFF4F6F5),
+
+    background = Color.Black,
+    onBackground = Color(0xFFF4F6F5),
+
+    surface = Color.Black,
+    onSurface = Color(0xFFF4F6F5),
+
+    tertiary = Color(0xFFF4F6F5)
+)
+
+val MonochromeMode2 = darkColorScheme(
+    primary = Color(0xFF37D17B),
+    onPrimary = Color.Black,
+
+    secondary = Color.Black,
+    onSecondary = Color(0xFF37D17B),
+
+    background = Color.Black,
+    onBackground = Color(0xFF37D17B),
+
+    surface = Color.Black,
+    onSurface = Color(0xFF37D17B),
+
+    tertiary = Color(0xFF37D17B)
+)
+
+val UssrRedMode = darkColorScheme(
+    primary = Color(0xFFA4133C),
+    onPrimary = Color.Black,
+
+    secondary = Color.Black,
+    onSecondary = Color(0xFFA4133C),
+
+    background = Color.Black,
+    onBackground = Color(0xFFA4133C),
+
+    surface = Color.Black,
+    onSurface = Color(0xFFA4133C),
+
+    tertiary = Color(0xFFA4133C)
+)

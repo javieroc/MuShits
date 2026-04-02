@@ -31,7 +31,7 @@
         </activity>
 
         <service
-            android:name="com.example.mushits.MusicService"
+            android:name=".MusicService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback"
             android:enabled="true">

@@ -1,0 +1,183 @@
+package com.connan.mushits.ui.components
+
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import com.connan.mushits.data.Song
+import com.connan.mushits.ui.theme.ColorMode
+import com.connan.mushits.ui.theme.getMatrix
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Player(
+    song: Song?,
+    isPlaying: Boolean,
+    position: Long,
+    colorMode: ColorMode,
+    onPlayPause: () -> Unit,
+    onSeek: (Long) -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (song == null) {
+        return
+    }
+
+    val matrix = getMatrix(colorMode)
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color.Black.copy(alpha = 0.35f))
+            .border(1.dp, MaterialTheme.colorScheme.primary)
+            .padding(8.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(modifier = Modifier.size(64.dp)) {
+            SubcomposeAsyncImage(
+                model = song.artUri,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                val state by painter.state.collectAsState()
+                when (state) {
+                    is AsyncImagePainter.State.Loading -> {
+                        ShimmerBox(Modifier.fillMaxSize())
+                    }
+                    is AsyncImagePainter.State.Success -> {
+                        SubcomposeAsyncImageContent(
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            colorFilter = ColorFilter.colorMatrix(matrix)
+                        )
+                    }
+                    else -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.3f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MusicNote,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(38.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.width(10.dp))
+
+        Column(
+            Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = song.title,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 10.sp
+            )
+            Text(
+                text = song.artist,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 8.sp
+            )
+
+            Slider(
+                value = position.toFloat(),
+                onValueChange = { onSeek(it.toLong()) },
+                valueRange = 0f..song.duration.toFloat(),
+                modifier = Modifier.fillMaxWidth(),
+                colors = SliderDefaults.colors(
+                    thumbColor = Color.Transparent,
+                    activeTrackColor = Color.Transparent,
+                    inactiveTrackColor = Color.Transparent
+                ),
+                track = { sliderState ->
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+                    ) {
+                        Box(
+                            Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(sliderState.value / song.duration.toFloat())
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                    }
+                }
+            )
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(formatTime(position), fontSize = 10.sp, color = MaterialTheme.colorScheme.primary)
+                Text(formatTime(song.duration), fontSize = 10.sp, color = MaterialTheme.colorScheme.primary)
+            }
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PlayerIconButton(
+                    onClick = onPrevious,
+                    icon = Icons.Filled.SkipPrevious
+                )
+
+                PlayerIconButton(
+                    onClick = onPlayPause,
+                    icon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow
+                )
+
+                PlayerIconButton(
+                    onClick = onNext,
+                    icon = Icons.Filled.SkipNext
+                )
+            }
+        }
+    }
+}
+
+@SuppressLint("DefaultLocale")
+fun formatTime(ms: Long): String {
+    val totalSeconds = ms / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%02d:%02d", minutes, seconds)
+}

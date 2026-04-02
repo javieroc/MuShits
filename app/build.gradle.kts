@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mushits"
+    namespace = "com.connan.mushits"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.mushits"
+        applicationId = "com.connan.mushits"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
